@@ -27,27 +27,18 @@
 
   <title>NOVA</title>
 
-
   <style>
-
-    /* =================================
-       GLOBAL
-       ================================= */
 
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
     }
 
-
     html,
     body {
-
       margin: 0;
-
       width: 100%;
       height: 100%;
-
       overflow: hidden;
 
       background:
@@ -65,27 +56,16 @@
         BlinkMacSystemFont,
         "Segoe UI",
         sans-serif;
-
     }
-
 
     body {
-
       position: relative;
-
     }
 
-
-    /* =================================
-       HUD GRID
-       ================================= */
-
     body::before {
-
       content: "";
 
       position: fixed;
-
       inset: 0;
 
       background:
@@ -102,79 +82,46 @@
       background-size: 35px 35px;
 
       pointer-events: none;
-
     }
 
-
-    /* =================================
-       APP
-       ================================= */
-
     .app {
-
       height: 100dvh;
 
       display: flex;
-
       flex-direction: column;
 
       padding:
         env(safe-area-inset-top)
         18px
         env(safe-area-inset-bottom);
-
     }
 
-
-    /* =================================
-       HEADER
-       ================================= */
-
     header {
-
       height: 70px;
 
       display: flex;
-
       align-items: center;
-
       justify-content: space-between;
-
     }
-
 
     .brand {
-
       letter-spacing: 8px;
-
       font-size: 20px;
-
       font-weight: 600;
-
     }
 
-
     .connection {
-
       display: flex;
-
       align-items: center;
-
       gap: 8px;
 
       font-size: 11px;
-
       letter-spacing: 1px;
-
       color: #718897;
-
     }
 
-
     .connection-dot {
-
       width: 7px;
-
       height: 7px;
 
       border-radius: 50%;
@@ -187,69 +134,43 @@
       transition:
         background .3s ease,
         box-shadow .3s ease;
-
     }
 
-
-    /* =================================
-       MAIN
-       ================================= */
-
     main {
-
       flex: 1;
 
       display: flex;
-
       flex-direction: column;
-
       align-items: center;
 
       overflow: hidden;
-
     }
 
-
     .subtitle {
-
       margin-top: 5px;
 
       font-size: 10px;
-
       letter-spacing: 4px;
 
       color: #54717e;
 
       text-align: center;
-
     }
 
-
-    /* =================================
-       ORB
-       ================================= */
-
     .orb-area {
-
       width: 280px;
-
       height: 280px;
 
       margin-top: 15px;
 
       display: flex;
-
       align-items: center;
-
       justify-content: center;
 
       position: relative;
-
     }
 
-
     .orbit {
-
       position: absolute;
 
       border:
@@ -259,66 +180,47 @@
       border-radius: 50%;
 
       pointer-events: none;
-
     }
 
-
     .orbit.one {
-
       width: 210px;
-
       height: 210px;
 
       animation:
         rotate 15s linear infinite;
-
     }
 
-
     .orbit.two {
-
       width: 250px;
-
       height: 250px;
 
       border-style: dashed;
 
       animation:
         rotate-reverse 24s linear infinite;
-
     }
 
-
     .orbit.three {
-
       width: 275px;
-
       height: 275px;
 
       opacity: .35;
 
       animation:
         rotate 35s linear infinite;
-
     }
 
-
     .orb {
-
       width: 145px;
-
       height: 145px;
 
       border-radius: 50%;
 
       position: relative;
-
       z-index: 2;
 
       display: flex;
-
       align-items: center;
-
       justify-content: center;
 
       cursor: pointer;
@@ -338,7 +240,6 @@
         rgba(151, 239, 255, .9);
 
       box-shadow:
-
         0 0 30px
         rgba(65, 212, 255, .65),
 
@@ -353,22 +254,14 @@
         box-shadow .2s ease;
 
       user-select: none;
-
     }
-
 
     .orb:active {
-
-      transform:
-        scale(.94);
-
+      transform: scale(.94);
     }
 
-
     .orb-core {
-
       width: 32px;
-
       height: 32px;
 
       border-radius: 50%;
@@ -383,143 +276,83 @@
 
       box-shadow:
         0 0 25px #8eefff;
-
     }
-
-
-    /* =================================
-       ORB STATES
-       ================================= */
 
     .orb.listening {
-
       animation:
         listen 1s ease-in-out infinite;
-
     }
-
 
     .orb.thinking {
-
       animation:
         think 1.2s linear infinite;
-
     }
-
 
     .orb.speaking {
-
       animation:
         speak .45s ease-in-out infinite;
-
     }
-
 
     @keyframes rotate {
-
       to {
-
-        transform:
-          rotate(360deg);
-
+        transform: rotate(360deg);
       }
-
     }
-
 
     @keyframes rotate-reverse {
-
       to {
-
-        transform:
-          rotate(-360deg);
-
+        transform: rotate(-360deg);
       }
-
     }
-
 
     @keyframes listen {
-
       50% {
-
-        transform:
-          scale(1.09);
-
+        transform: scale(1.09);
       }
-
     }
-
 
     @keyframes think {
-
       to {
-
-        transform:
-          rotate(360deg);
-
+        transform: rotate(360deg);
       }
-
     }
-
 
     @keyframes speak {
-
       50% {
-
-        transform:
-          scale(1.08);
-
+        transform: scale(1.08);
       }
-
     }
 
-
-    /* =================================
-       STATUS
-       ================================= */
-
     .status {
+      width: 100%;
+      max-width: 500px;
 
       text-align: center;
 
       margin-top: 2px;
-
     }
 
-
     .status-main {
-
       font-size: 14px;
-
       letter-spacing: 2px;
 
       color: #c9f7ff;
 
+      max-height: 42px;
+      overflow: hidden;
     }
 
-
     .status-sub {
-
       margin-top: 7px;
 
       font-size: 10px;
-
       letter-spacing: 2px;
 
       color: #4f6b77;
-
     }
 
-
-    /* =================================
-       PC PANEL
-       ================================= */
-
     .pc-panel {
-
       width: 100%;
-
       max-width: 500px;
 
       margin-top: 16px;
@@ -533,8 +366,7 @@
       background:
         rgba(5, 17, 25, .55);
 
-      backdrop-filter:
-        blur(12px);
+      backdrop-filter: blur(12px);
 
       clip-path:
         polygon(
@@ -547,41 +379,27 @@
           0 calc(100% - 8px),
           0 8px
         );
-
     }
 
-
     .pc-title {
-
       font-size: 9px;
-
       letter-spacing: 3px;
 
       color: #527583;
 
       margin-bottom: 10px;
-
     }
 
-
-    /* =================================
-       STATS
-       ================================= */
-
     .stats {
-
       display: grid;
 
       grid-template-columns:
         repeat(3, 1fr);
 
       gap: 8px;
-
     }
 
-
     .stat {
-
       text-align: center;
 
       padding: 7px;
@@ -589,47 +407,28 @@
       border-left:
         1px solid
         rgba(72, 190, 225, .12);
-
     }
-
 
     .stat:first-child {
-
       border-left: none;
-
     }
-
 
     .stat-value {
-
       font-size: 14px;
-
       color: #9ceeff;
-
     }
 
-
     .stat-label {
-
       margin-top: 3px;
 
       font-size: 8px;
-
       letter-spacing: 1px;
 
       color: #4f6974;
-
     }
 
-
-    /* =================================
-       CONTROLS
-       ================================= */
-
     .controls {
-
       width: 100%;
-
       max-width: 500px;
 
       margin-top: 10px;
@@ -640,12 +439,9 @@
         repeat(2, 1fr);
 
       gap: 8px;
-
     }
 
-
     .control {
-
       height: 44px;
 
       border:
@@ -668,29 +464,17 @@
       transition:
         background .15s ease,
         transform .15s ease;
-
     }
 
-
     .control:active {
-
       background:
         rgba(35, 110, 135, .35);
 
-      transform:
-        scale(.98);
-
+      transform: scale(.98);
     }
 
-
-    /* =================================
-       INPUT
-       ================================= */
-
     .input-area {
-
       width: 100%;
-
       max-width: 600px;
 
       padding:
@@ -700,21 +484,14 @@
           10px +
           env(safe-area-inset-bottom)
         );
-
     }
-
 
     .input-box {
-
       display: flex;
-
       gap: 7px;
-
     }
 
-
     input {
-
       flex: 1;
 
       height: 46px;
@@ -730,37 +507,27 @@
 
       color: white;
 
-      padding:
-        0 14px;
+      padding: 0 14px;
 
       outline: none;
 
       font-size: 16px;
-
     }
 
-
     input:focus {
-
       border-color:
         rgba(72, 190, 225, .45);
 
       box-shadow:
         0 0 15px
         rgba(72, 190, 225, .08);
-
     }
-
 
     input::placeholder {
-
       color: #48616c;
-
     }
 
-
     .send {
-
       width: 46px;
 
       border-radius: 5px;
@@ -777,119 +544,65 @@
       font-size: 19px;
 
       cursor: pointer;
-
     }
-
 
     .send:active {
-
-      transform:
-        scale(.95);
-
+      transform: scale(.95);
     }
 
-
-    /* =================================
-       SMALL SCREENS
-       ================================= */
-
-    @media (
-      max-height: 700px
-    ) {
+    @media (max-height: 700px) {
 
       .orb-area {
-
-        transform:
-          scale(.82);
+        transform: scale(.82);
 
         margin-top: -15px;
-
         margin-bottom: -20px;
-
       }
-
 
       .pc-panel {
-
         margin-top: 0;
-
       }
-
 
       .controls {
-
         margin-top: 6px;
-
       }
-
     }
 
-
-    /* =================================
-       VERY SMALL WIDTHS
-       ================================= */
-
-    @media (
-      max-width: 350px
-    ) {
+    @media (max-width: 350px) {
 
       .app {
-
         padding-left: 12px;
-
         padding-right: 12px;
-
       }
-
 
       .brand {
-
         font-size: 17px;
-
         letter-spacing: 6px;
-
       }
-
 
       .subtitle {
-
         font-size: 8px;
-
         letter-spacing: 3px;
-
       }
-
 
       .orb-area {
-
-        transform:
-          scale(.9);
-
+        transform: scale(.9);
       }
-
     }
 
   </style>
 
 </head>
 
-
 <body>
 
-
   <div class="app">
-
-
-    <!-- =============================
-         HEADER
-         ============================== -->
 
     <header>
 
       <div class="brand">
         NOVA
       </div>
-
 
       <div class="connection">
 
@@ -898,10 +611,7 @@
           id="connectionDot"
         ></div>
 
-
-        <span
-          id="connectionText"
-        >
+        <span id="connectionText">
           PC OFFLINE
         </span>
 
@@ -909,31 +619,17 @@
 
     </header>
 
-
-    <!-- =============================
-         MAIN
-         ============================== -->
-
     <main>
-
 
       <div class="subtitle">
         PERSONAL COMMAND SYSTEM
       </div>
 
-
-      <!-- ===========================
-           NOVA ORB
-           ============================ -->
-
       <div class="orb-area">
 
         <div class="orbit one"></div>
-
         <div class="orbit two"></div>
-
         <div class="orbit three"></div>
-
 
         <div
           class="orb"
@@ -942,18 +638,11 @@
           aria-label="Talk to NOVA"
         >
 
-          <div
-            class="orb-core"
-          ></div>
+          <div class="orb-core"></div>
 
         </div>
 
       </div>
-
-
-      <!-- ===========================
-           STATUS
-           ============================ -->
 
       <div class="status">
 
@@ -964,31 +653,19 @@
           READY
         </div>
 
-
         <div class="status-sub">
           TAP NOVA TO SPEAK
         </div>
 
       </div>
 
-
-      <!-- ===========================
-           PC SYSTEM
-           ============================ -->
-
-      <section
-        class="pc-panel"
-      >
+      <section class="pc-panel">
 
         <div class="pc-title">
           PC SYSTEM
         </div>
 
-
         <div class="stats">
-
-
-          <!-- CPU -->
 
           <div class="stat">
 
@@ -1005,9 +682,6 @@
 
           </div>
 
-
-          <!-- RAM -->
-
           <div class="stat">
 
             <div
@@ -1023,36 +697,26 @@
 
           </div>
 
-
-          <!-- DISK -->
-
           <div class="stat">
 
             <div
               class="stat-value"
-              id="disk"
+              id="gpu"
             >
               --
             </div>
 
             <div class="stat-label">
-              DISK
+              GPU
             </div>
 
           </div>
-
 
         </div>
 
       </section>
 
-
-      <!-- ===========================
-           CONTROLS
-           ============================ -->
-
       <div class="controls">
-
 
         <button
           class="control"
@@ -1061,14 +725,12 @@
           ⚡ WAKE PC
         </button>
 
-
         <button
           class="control"
           id="volume"
         >
           🔊 VOLUME
         </button>
-
 
         <button
           class="control"
@@ -1077,7 +739,6 @@
           ▶ MEDIA
         </button>
 
-
         <button
           class="control"
           id="apps"
@@ -1085,21 +746,13 @@
           ◈ APPS
         </button>
 
-
       </div>
 
-
     </main>
-
-
-    <!-- =============================
-         COMMAND INPUT
-         ============================== -->
 
     <div class="input-area">
 
       <div class="input-box">
-
 
         <input
           id="input"
@@ -1111,7 +764,6 @@
           spellcheck="false"
         >
 
-
         <button
           class="send"
           id="send"
@@ -1120,23 +772,13 @@
           ↑
         </button>
 
-
       </div>
 
     </div>
 
-
   </div>
 
-
-  <!-- ===============================
-       NOVA JAVASCRIPT
-       ================================ -->
-
-  <script
-    src="app.js"
-  ></script>
-
+  <script src="app.js"></script>
 
 </body>
 
