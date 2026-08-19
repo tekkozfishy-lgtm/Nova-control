@@ -20,6 +20,16 @@
     content="yes"
   >
 
+  <meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent"
+  >
+
   <link
     rel="manifest"
     href="manifest.json"
@@ -29,10 +39,6 @@
 
 
   <style>
-
-    /* =====================================================
-       GLOBAL
-       ===================================================== */
 
     * {
       box-sizing: border-box;
@@ -52,10 +58,10 @@
 
       background:
         radial-gradient(
-          circle at 50% 40%,
+          circle at 50% 38%,
           #102a3b 0%,
-          #061018 30%,
-          #020509 75%
+          #061018 32%,
+          #020509 78%
         );
 
       color: #d9f8ff;
@@ -73,10 +79,6 @@
       position: relative;
     }
 
-
-    /* =====================================================
-       HUD GRID
-       ===================================================== */
 
     body::before {
 
@@ -104,10 +106,6 @@
     }
 
 
-    /* =====================================================
-       APP
-       ===================================================== */
-
     .app {
 
       height: 100dvh;
@@ -124,9 +122,7 @@
     }
 
 
-    /* =====================================================
-       HEADER
-       ===================================================== */
+    /* ================= HEADER ================= */
 
     header {
 
@@ -183,15 +179,12 @@
         0 0 12px #ff4d4d;
 
       transition:
-        background .3s ease,
-        box-shadow .3s ease;
+        .3s ease;
 
     }
 
 
-    /* =====================================================
-       MAIN
-       ===================================================== */
+    /* ================= MAIN ================= */
 
     main {
 
@@ -223,9 +216,7 @@
     }
 
 
-    /* =====================================================
-       ORB
-       ===================================================== */
+    /* ================= ORB ================= */
 
     .orb-area {
 
@@ -264,7 +255,6 @@
     .orbit.one {
 
       width: 210px;
-
       height: 210px;
 
       animation:
@@ -276,7 +266,6 @@
     .orbit.two {
 
       width: 250px;
-
       height: 250px;
 
       border-style: dashed;
@@ -290,7 +279,6 @@
     .orbit.three {
 
       width: 275px;
-
       height: 275px;
 
       opacity: .35;
@@ -304,7 +292,6 @@
     .orb {
 
       width: 145px;
-
       height: 145px;
 
       border-radius: 50%;
@@ -320,6 +307,10 @@
       justify-content: center;
 
       cursor: pointer;
+
+      touch-action: manipulation;
+
+      user-select: none;
 
       background:
         radial-gradient(
@@ -346,29 +337,12 @@
         inset 0 0 35px
         rgba(160, 244, 255, .3);
 
-      transition:
-        transform .2s ease,
-        box-shadow .2s ease;
-
-      user-select: none;
-
-      touch-action: manipulation;
-
-    }
-
-
-    .orb:active {
-
-      transform:
-        scale(.94);
-
     }
 
 
     .orb-core {
 
       width: 32px;
-
       height: 32px;
 
       border-radius: 50%;
@@ -386,10 +360,6 @@
 
     }
 
-
-    /* =====================================================
-       ORB STATES
-       ===================================================== */
 
     .orb.listening {
 
@@ -465,9 +435,7 @@
     }
 
 
-    /* =====================================================
-       STATUS
-       ===================================================== */
+    /* ================= STATUS ================= */
 
     .status {
 
@@ -484,15 +452,13 @@
 
     .status-main {
 
+      min-height: 20px;
+
       font-size: 14px;
 
       letter-spacing: 2px;
 
       color: #c9f7ff;
-
-      min-height: 18px;
-
-      max-width: 100%;
 
       overflow: hidden;
 
@@ -514,9 +480,7 @@
     }
 
 
-    /* =====================================================
-       PC PANEL
-       ===================================================== */
+    /* ================= PC PANEL ================= */
 
     .pc-panel {
 
@@ -566,10 +530,6 @@
     }
 
 
-    /* =====================================================
-       STATS
-       ===================================================== */
-
     .stats {
 
       display: grid;
@@ -596,9 +556,7 @@
 
 
     .stat:first-child {
-
       border-left: none;
-
     }
 
 
@@ -624,9 +582,7 @@
     }
 
 
-    /* =====================================================
-       CONTROLS
-       ===================================================== */
+    /* ================= CONTROLS ================= */
 
     .controls {
 
@@ -667,10 +623,6 @@
 
       border-radius: 4px;
 
-      transition:
-        background .15s ease,
-        transform .15s ease;
-
       touch-action: manipulation;
 
     }
@@ -687,9 +639,7 @@
     }
 
 
-    /* =====================================================
-       INPUT
-       ===================================================== */
+    /* ================= INPUT ================= */
 
     .input-area {
 
@@ -744,22 +694,8 @@
     }
 
 
-    input:focus {
-
-      border-color:
-        rgba(72, 190, 225, .45);
-
-      box-shadow:
-        0 0 15px
-        rgba(72, 190, 225, .08);
-
-    }
-
-
     input::placeholder {
-
       color: #48616c;
-
     }
 
 
@@ -782,26 +718,16 @@
 
       cursor: pointer;
 
-      touch-action: manipulation;
-
     }
 
 
     .send:active {
-
       transform:
         scale(.95);
-
     }
 
 
-    /* =====================================================
-       SMALL SCREENS
-       ===================================================== */
-
-    @media (
-      max-height: 700px
-    ) {
+    @media (max-height: 700px) {
 
       .orb-area {
 
@@ -814,62 +740,31 @@
 
       }
 
-
       .pc-panel {
-
         margin-top: 0;
-
       }
 
-
       .controls {
-
         margin-top: 6px;
-
       }
 
     }
 
 
-    /* =====================================================
-       VERY SMALL WIDTHS
-       ===================================================== */
-
-    @media (
-      max-width: 350px
-    ) {
+    @media (max-width: 350px) {
 
       .app {
 
         padding-left: 12px;
-
         padding-right: 12px;
 
       }
-
 
       .brand {
 
         font-size: 17px;
 
         letter-spacing: 6px;
-
-      }
-
-
-      .subtitle {
-
-        font-size: 8px;
-
-        letter-spacing: 3px;
-
-      }
-
-
-      .orb-area {
-
-        transform:
-          scale(.9);
 
       }
 
@@ -886,10 +781,6 @@
   <div class="app">
 
 
-    <!-- =================================================
-         HEADER
-         ================================================= -->
-
     <header>
 
       <div class="brand">
@@ -905,9 +796,7 @@
         ></div>
 
 
-        <span
-          id="connectionText"
-        >
+        <span id="connectionText">
           PC OFFLINE
         </span>
 
@@ -915,10 +804,6 @@
 
     </header>
 
-
-    <!-- =================================================
-         MAIN
-         ================================================= -->
 
     <main>
 
@@ -928,16 +813,10 @@
       </div>
 
 
-      <!-- =================================================
-           NOVA ORB
-           ================================================= -->
-
       <div class="orb-area">
 
         <div class="orbit one"></div>
-
         <div class="orbit two"></div>
-
         <div class="orbit three"></div>
 
 
@@ -949,18 +828,12 @@
           aria-label="Talk to NOVA"
         >
 
-          <div
-            class="orb-core"
-          ></div>
+          <div class="orb-core"></div>
 
         </div>
 
       </div>
 
-
-      <!-- =================================================
-           STATUS
-           ================================================= -->
 
       <div class="status">
 
@@ -979,13 +852,7 @@
       </div>
 
 
-      <!-- =================================================
-           PC SYSTEM
-           ================================================= -->
-
-      <section
-        class="pc-panel"
-      >
+      <section class="pc-panel">
 
         <div class="pc-title">
           PC SYSTEM
@@ -994,8 +861,6 @@
 
         <div class="stats">
 
-
-          <!-- CPU -->
 
           <div class="stat">
 
@@ -1013,8 +878,6 @@
           </div>
 
 
-          <!-- RAM -->
-
           <div class="stat">
 
             <div
@@ -1030,8 +893,6 @@
 
           </div>
 
-
-          <!-- GPU -->
 
           <div class="stat">
 
@@ -1053,10 +914,6 @@
 
       </section>
 
-
-      <!-- =================================================
-           CONTROLS
-           ================================================= -->
 
       <div class="controls">
 
@@ -1103,10 +960,6 @@
     </main>
 
 
-    <!-- =================================================
-         COMMAND INPUT
-         ================================================= -->
-
     <div class="input-area">
 
       <div class="input-box">
@@ -1141,15 +994,10 @@
   </div>
 
 
-  <!-- ===================================================
-       NOVA JAVASCRIPT
-
-       v3 forces GitHub Pages/browser to fetch the newest
-       app.js instead of using an old cached version.
-       =================================================== -->
+  <!-- Cache-busting version -->
 
   <script
-    src="app.js?v=3"
+    src="app.js?v=100"
     defer
   ></script>
 
