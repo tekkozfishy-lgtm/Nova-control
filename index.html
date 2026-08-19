@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1,
+    viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#03070d">
+
+  <link rel="manifest" href="manifest.json">
+
+  <title>NOVA</title>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+
+      background:
+        radial-gradient(
+          circle at 50% 40%,
+          #102a3b 0%,
+          #061018 30%,
+          #020509 75%
+        );
+
+      color: #d9f8ff;
+
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    }
+
+    body {
+      position: relative;
+    }
+
+    /* HUD grid */
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+
+      background:
+        linear-gradient(
+          rgba(70, 190, 230, .025) 1px,
+          transparent 1px
+        ),
+        linear-gradient(
+          90deg,
+          rgba(70, 190, 230, .025) 1px,
+          transparent 1px
+        );
+
+      background-size: 35px 35px;
+
+      pointer-events: none;
+    }
+
+    .app {
+      height: 100dvh;
+
+      display: flex;
+      flex-direction: column;
+
+      padding:
+        env(safe-area-inset-top)
+        18px
+        env(safe-area-inset-bottom);
+    }
+
+    /* HEADER */
+
+    header {
+      height: 70px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      letter-spacing: 8px;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .connection {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      font-size: 11px;
+      letter-spacing: 1px;
+
+      color: #718897;
+    }
+
+    .connection-dot {
+      width: 7px;
+      height: 7px;
+
+      border-radius: 50%;
+
+      background: #ffb84d;
+
+      box-shadow:
+        0 0 12px #ffb84d;
+    }
+
+    /* MAIN */
+
+    main {
+      flex: 1;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      overflow: hidden;
+    }
+
+    .subtitle {
+      margin-top: 5px;
+
+      font-size: 10px;
+
+      letter-spacing: 4px;
+
+      color: #54717e;
+    }
+
+    /* ORB */
+
+    .orb-area {
+      width: 280px;
+      height: 280px;
+
+      margin-top: 15px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      position: relative;
+    }
+
+    .orbit {
+      position: absolute;
+
+      border: 1px solid
+        rgba(73, 213, 255, .18);
+
+      border-radius: 50%;
+    }
+
+    .orbit.one {
+      width: 210px;
+      height: 210px;
+
+      animation:
+        rotate 15s linear infinite;
+    }
+
+    .orbit.two {
+      width: 250px;
+      height: 250px;
+
+      border-style: dashed;
+
+      animation:
+        rotate-reverse 24s linear infinite;
+    }
+
+    .orbit.three {
+      width: 275px;
+      height: 275px;
+
+      opacity: .35;
+
+      animation:
+        rotate 35s linear infinite;
+    }
+
+    .orb {
+      width: 145px;
+      height: 145px;
+
+      border-radius: 50%;
+
+      position: relative;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      cursor: pointer;
+
+      background:
+        radial-gradient(
+          circle at 35% 30%,
+          #d8fbff,
+          #4ad6ff 12%,
+          #167c9d 30%,
+          #062536 62%,
+          #02080d 100%
+        );
+
+      border:
+        1px solid
+        rgba(151, 239, 255, .9);
+
+      box-shadow:
+        0 0 30px
+        rgba(65, 212, 255, .65),
+
+        0 0 80px
+        rgba(20, 135, 190, .3),
+
+        inset 0 0 35px
+        rgba(160, 244, 255, .3);
+
+      transition:
+        transform .2s ease,
+        box-shadow .2s ease;
+    }
+
+    .orb:active {
+      transform: scale(.94);
+    }
+
+    .orb-core {
+      width: 32px;
+      height: 32px;
+
+      border-radius: 50%;
+
+      background:
+        radial-gradient(
+          circle,
+          white 0%,
+          #a9f2ff 25%,
+          transparent 70%
+        );
+
+      box-shadow:
+        0 0 25px #8eefff;
+    }
+
+    .orb.listening {
+      animation:
+        listen 1s ease-in-out infinite;
+    }
+
+    .orb.thinking {
+      animation:
+        think 1.2s linear infinite;
+    }
+
+    .orb.speaking {
+      animation:
+        speak .45s ease-in-out infinite;
+    }
+
+    @keyframes rotate {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes rotate-reverse {
+      to {
+        transform: rotate(-360deg);
+      }
+    }
+
+    @keyframes listen {
+      50% {
+        transform: scale(1.09);
+      }
+    }
+
+    @keyframes think {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes speak {
+      50% {
+        transform: scale(1.08);
+      }
+    }
+
+    /* STATUS */
+
+    .status {
+      text-align: center;
+
+      margin-top: 2px;
+    }
+
+    .status-main {
+      font-size: 14px;
+
+      letter-spacing: 2px;
+
+      color: #c9f7ff;
+    }
+
+    .status-sub {
+      margin-top: 7px;
+
+      font-size: 10px;
+
+      letter-spacing: 2px;
+
+      color: #4f6b77;
+    }
+
+    /* PC PANEL */
+
+    .pc-panel {
+      width: 100%;
+      max-width: 500px;
+
+      margin-top: 16px;
+
+      padding: 12px 15px;
+
+      border:
+        1px solid
+        rgba(72, 190, 225, .16);
+
+      background:
+        rgba(5, 17, 25, .55);
+
+      backdrop-filter:
+        blur(12px);
+
+      clip-path:
+        polygon(
+          8px 0,
+          calc(100% - 8px) 0,
+          100% 8px,
+          100% calc(100% - 8px),
+          calc(100% - 8px) 100%,
+          8px 100%,
+          0 calc(100% - 8px),
+          0 8px
+        );
+    }
+
+    .pc-title {
+      font-size: 9px;
+
+      letter-spacing: 3px;
+
+      color: #527583;
+
+      margin-bottom: 10px;
+    }
+
+    .stats {
+      display: grid;
+
+      grid-template-columns:
+        repeat(3, 1fr);
+
+      gap: 8px;
+    }
+
+    .stat {
+      text-align: center;
+
+      padding: 7px;
+
+      border-left:
+        1px solid
+        rgba(72, 190, 225, .12);
+    }
+
+    .stat-value {
+      font-size: 14px;
+
+      color: #9ceeff;
+    }
+
+    .stat-label {
+      margin-top: 3px;
+
+      font-size: 8px;
+
+      letter-spacing: 1px;
+
+      color: #4f6974;
+    }
+
+    /* CONTROLS */
+
+    .controls {
+      width: 100%;
+      max-width: 500px;
+
+      margin-top: 10px;
+
+      display: grid;
+
+      grid-template-columns:
+        repeat(2, 1fr);
+
+      gap: 8px;
+    }
+
+    .control {
+      height: 44px;
+
+      border:
+        1px solid
+        rgba(72, 190, 225, .13);
+
+      background:
+        rgba(7, 19, 28, .65);
+
+      color: #9deeff;
+
+      letter-spacing: 1px;
+
+      font-size: 10px;
+
+      cursor: pointer;
+
+      border-radius: 4px;
+    }
+
+    .control:active {
+      background:
+        rgba(35, 110, 135, .35);
+
+      transform: scale(.98);
+    }
+
+    /* INPUT */
+
+    .input-area {
+      width: 100%;
+      max-width: 600px;
+
+      padding:
+        10px
+        0
+        calc(
+          10px +
+          env(safe-area-inset-bottom)
+        );
+    }
+
+    .input-box {
+      display: flex;
+      gap: 7px;
+    }
+
+    input {
+      flex: 1;
+
+      height: 46px;
+
+      border-radius: 5px;
+
+      border:
+        1px solid
+        rgba(72, 190, 225, .2);
+
+      background:
+        rgba(4, 13, 20, .9);
+
+      color: white;
+
+      padding: 0 14px;
+
+      outline: none;
+
+      font-size: 16px;
+    }
+
+    input::placeholder {
+      color: #48616c;
+    }
+
+    .send {
+      width: 46px;
+
+      border-radius: 5px;
+
+      border:
+        1px solid
+        rgba(72, 190, 225, .25);
+
+      background:
+        rgba(10, 31, 43, .9);
+
+      color: #7ce7ff;
+
+      font-size: 19px;
+    }
+
+    /* RESPONSIVE */
+
+    @media (
+      max-height: 700px
+    ) {
+
+      .orb-area {
+        transform: scale(.82);
+        margin-top: -15px;
+        margin-bottom: -20px;
+      }
+
+      .pc-panel {
+        margin-top: 0;
+      }
+
+      .controls {
+        margin-top: 6px;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+  <header>
+
+    <div class="brand">
+      NOVA
+    </div>
+
+    <div class="connection">
+
+      <div
+        class="connection-dot"
+        id="connectionDot"
+      ></div>
+
+      <span id="connectionText">
+        PC OFFLINE
+      </span>
+
+    </div>
+
+  </header>
+
+
+  <main>
+
+    <div class="subtitle">
+      PERSONAL COMMAND SYSTEM
+    </div>
+
+
+    <div class="orb-area">
+
+      <div class="orbit one"></div>
+
+      <div class="orbit two"></div>
+
+      <div class="orbit three"></div>
+
+
+      <div
+        class="orb"
+        id="orb"
+      >
+
+        <div
+          class="orb-core"
+        ></div>
+
+      </div>
+
+    </div>
+
+
+    <div class="status">
+
+      <div
+        class="status-main"
+        id="status"
+      >
+        READY
+      </div>
+
+      <div class="status-sub">
+        TAP NOVA TO SPEAK
+      </div>
+
+    </div>
+
+
+    <section class="pc-panel">
+
+      <div class="pc-title">
+        PC SYSTEM
+      </div>
+
+      <div class="stats">
+
+        <div class="stat">
+
+          <div
+            class="stat-value"
+            id="cpu"
+          >
+            --
+          </div>
+
+          <div class="stat-label">
+            CPU
+          </div>
+
+        </div>
+
+
+        <div class="stat">
+
+          <div
+            class="stat-value"
+            id="ram"
+          >
+            --
+          </div>
+
+          <div class="stat-label">
+            RAM
+          </div>
+
+        </div>
+
+
+        <div class="stat">
+
+          <div
+            class="stat-value"
+            id="gpu"
+          >
+            --
+          </div>
+
+          <div class="stat-label">
+            GPU
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <div class="controls">
+
+      <button
+        class="control"
+        id="wake"
+      >
+        ⚡ WAKE PC
+      </button>
+
+      <button
+        class="control"
+        id="volume"
+      >
+        🔊 VOLUME
+      </button>
+
+      <button
+        class="control"
+        id="media"
+      >
+        ▶ MEDIA
+      </button>
+
+      <button
+        class="control"
+        id="apps"
+      >
+        ◈ APPS
+      </button>
+
+    </div>
+
+  </main>
+
+
+  <div class="input-area">
+
+    <div class="input-box">
+
+      <input
+        id="input"
+        type="text"
+        placeholder="Command NOVA..."
+        autocomplete="off"
+      >
+
+      <button
+        class="send"
+        id="send"
+      >
+        ↑
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script src="app.js"></script>
+
+</body>
+
+</html>
