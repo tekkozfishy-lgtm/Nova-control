@@ -1,5 +1,5 @@
 /* =========================================================
-   NOVA MOBILE CONTROLLER
+   NOVA MASTER MOBILE CONTROLLER
    ========================================================= */
 
 
@@ -9,6 +9,18 @@
 
 const PC_URL =
     "https://grace-upgrades-subscription-strip.trycloudflare.com";
+
+
+const STATUS_URL =
+    PC_URL + "/status";
+
+
+const COMMAND_URL =
+    PC_URL + "/command";
+
+
+const STATS_URL =
+    PC_URL + "/stats";
 
 
 /* =========================================================
@@ -56,22 +68,28 @@ const gpu =
 
 
 /* =========================================================
-   SPEECH
+   STATE
    ========================================================= */
-
-const speech =
-    window.speechSynthesis;
 
 let recognition = null;
 
+let recognitionRunning = false;
+
+let speaking = false;
+
 
 /* =========================================================
-   STATUS
+   UI
    ========================================================= */
 
-function setStatus(text, animation = "") {
+function setStatus(
+    text,
+    mode = ""
+) {
 
-    status.textContent = text;
+    status.textContent =
+        String(text);
+
 
     orb.classList.remove(
         "listening",
@@ -79,173 +97,56 @@ function setStatus(text, animation = "") {
         "speaking"
     );
 
-    if (animation) {
-        orb.classList.add(animation);
+
+    if (mode) {
+
+        orb.classList.add(
+            mode
+        );
+
     }
+
 }
 
 
 /* =========================================================
-   PREPARE TTS
+   CONNECTION UI
    ========================================================= */
 
-function prepareSpeech() {
+function setOnline() {
 
-    if (!speech) {
+    connectionText.textContent =
+        "PC ONLINE";
 
-        console.error(
-            "Speech synthesis is not available."
-        );
 
-        return false;
-    }
+    connectionDot.style.background =
+        "#4dff9a";
 
-    /*
-     * This function is called directly
-     * from a user action.
-     *
-     * That is important on mobile.
-     */
 
-    speech.cancel();
+    connectionDot.style.boxShadow =
+        "0 0 12px #4dff9a";
 
-    speech.getVoices();
+}
 
-    console.log(
-        "NOVA TTS READY"
-    );
 
-    return true;
+function setOffline() {
+
+    connectionText.textContent =
+        "PC OFFLINE";
+
+
+    connectionDot.style.background =
+        "#ff4d4d";
+
+
+    connectionDot.style.boxShadow =
+        "0 0 12px #ff4d4d";
+
 }
 
 
 /* =========================================================
-   SPEAK
-   ========================================================= */
-
-function speak(text) {
-
-    if (!text) {
-        return;
-    }
-
-    if (!speech) {
-
-        console.error(
-            "NOVA TTS NOT AVAILABLE"
-        );
-
-        return;
-    }
-
-    console.log(
-        "NOVA SPEAKING:",
-        text
-    );
-
-    speech.cancel();
-
-
-    const utterance =
-        new SpeechSynthesisUtterance(
-            String(text)
-        );
-
-
-    utterance.lang =
-        "en-GB";
-
-    utterance.rate =
-        0.95;
-
-    utterance.pitch =
-        1.0;
-
-    utterance.volume =
-        1.0;
-
-
-    /*
-     * Pick an English voice if available.
-     */
-
-    const voices =
-        speech.getVoices();
-
-
-    const voice =
-        voices.find(
-            v =>
-                v.lang &&
-                v.lang
-                    .toLowerCase()
-                    .startsWith("en-gb")
-        )
-        ||
-        voices.find(
-            v =>
-                v.lang &&
-                v.lang
-                    .toLowerCase()
-                    .startsWith("en")
-        );
-
-
-    if (voice) {
-
-        utterance.voice =
-            voice;
-
-        console.log(
-            "NOVA VOICE:",
-            voice.name
-        );
-    }
-
-
-    utterance.onstart =
-        () => {
-
-            setStatus(
-                "SPEAKING",
-                "speaking"
-            );
-
-        };
-
-
-    utterance.onend =
-        () => {
-
-            setStatus(
-                "READY"
-            );
-
-        };
-
-
-    utterance.onerror =
-        event => {
-
-            console.error(
-                "TTS ERROR:",
-                event.error
-            );
-
-            setStatus(
-                "VOICE ERROR"
-            );
-        };
-
-
-    speech.speak(
-        utterance
-    );
-}
-
-
-/* =========================================================
-   CHECK PC CONNECTION
+   CONNECTION CHECK
    ========================================================= */
 
 async function checkConnection() {
@@ -254,7 +155,9 @@ async function checkConnection() {
 
         const response =
             await fetch(
-                PC_URL + "/status?time=" + Date.now(),
+                STATUS_URL +
+                "?t=" +
+                Date.now(),
                 {
                     method: "GET",
                     cache: "no-store"
@@ -268,6 +171,7 @@ async function checkConnection() {
                 "HTTP " +
                 response.status
             );
+
         }
 
 
@@ -276,23 +180,17 @@ async function checkConnection() {
 
 
         console.log(
-            "PC STATUS:",
+            "NOVA STATUS:",
             data
         );
 
 
-        if (data.online === true) {
+        if (
+            data &&
+            data.online === true
+        ) {
 
-            connectionText.textContent =
-                "PC ONLINE";
-
-
-            connectionDot.style.background =
-                "#4dff9a";
-
-
-            connectionDot.style.boxShadow =
-                "0 0 12px #4dff9a";
+            setOnline();
 
         }
 
@@ -307,135 +205,172 @@ async function checkConnection() {
     catch (error) {
 
         console.error(
-            "STATUS ERROR:",
+            "NOVA CONNECTION ERROR:",
             error
         );
+
 
         setOffline();
+
     }
+
 }
 
 
 /* =========================================================
-   OFFLINE DISPLAY
+   TEXT TO SPEECH
    ========================================================= */
 
-function setOffline() {
+function speak(text) {
 
-    connectionText.textContent =
-        "PC OFFLINE";
-
-    connectionDot.style.background =
-        "#ff4d4d";
-
-    connectionDot.style.boxShadow =
-        "0 0 12px #ff4d4d";
-}
-
-
-/* =========================================================
-   GET PC STATS
-   ========================================================= */
-
-async function updateStats() {
-
-    try {
-
-        const response =
-            await fetch(
-                PC_URL +
-                "/stats?time=" +
-                Date.now(),
-                {
-                    method: "GET",
-                    cache: "no-store"
-                }
-            );
-
-
-        if (!response.ok) {
-            throw new Error(
-                "HTTP " +
-                response.status
-            );
-        }
-
-
-        const data =
-            await response.json();
-
-
-        console.log(
-            "PC STATS:",
-            data
-        );
-
-
-        if (
-            typeof data.cpu ===
-            "number"
-        ) {
-
-            cpu.textContent =
-                Math.round(
-                    data.cpu
-                ) + "%";
-        }
-
-
-        if (
-            typeof data.ram ===
-            "number"
-        ) {
-
-            ram.textContent =
-                Math.round(
-                    data.ram
-                ) + "%";
-        }
-
-
-        if (
-            typeof data.gpu ===
-            "number"
-        ) {
-
-            gpu.textContent =
-                Math.round(
-                    data.gpu
-                ) + "%";
-        }
-
+    if (!text) {
+        return;
     }
 
-    catch (error) {
+
+    if (
+        !(
+            "speechSynthesis"
+            in window
+        )
+    ) {
 
         console.error(
-            "STATS ERROR:",
-            error
+            "Speech synthesis unavailable."
         );
+
+        return;
+
     }
+
+
+    const speech =
+        window.speechSynthesis;
+
+
+    speech.cancel();
+
+
+    const utterance =
+        new SpeechSynthesisUtterance(
+            String(text)
+        );
+
+
+    utterance.lang =
+        "en-GB";
+
+
+    utterance.rate =
+        0.95;
+
+
+    utterance.pitch =
+        1;
+
+
+    utterance.volume =
+        1;
+
+
+    const voices =
+        speech.getVoices();
+
+
+    const voice =
+        voices.find(
+            v =>
+                v.lang &&
+                v.lang
+                    .toLowerCase()
+                    .startsWith("en-gb")
+        ) ||
+        voices.find(
+            v =>
+                v.lang &&
+                v.lang
+                    .toLowerCase()
+                    .startsWith("en")
+        );
+
+
+    if (voice) {
+
+        utterance.voice =
+            voice;
+
+    }
+
+
+    utterance.onstart =
+        () => {
+
+            speaking = true;
+
+            setStatus(
+                "SPEAKING",
+                "speaking"
+            );
+
+        };
+
+
+    utterance.onend =
+        () => {
+
+            speaking = false;
+
+            setStatus(
+                "READY"
+            );
+
+        };
+
+
+    utterance.onerror =
+        error => {
+
+            speaking = false;
+
+            console.error(
+                "NOVA TTS ERROR:",
+                error
+            );
+
+            setStatus(
+                "VOICE ERROR"
+            );
+
+        };
+
+
+    speech.speak(
+        utterance
+    );
+
 }
 
 
 /* =========================================================
-   SEND COMMAND
+   COMMAND SYSTEM
    ========================================================= */
 
-async function sendCommand(text) {
+async function command(
+    text
+) {
 
-    const command =
-        text.trim();
+    const clean =
+        String(text).trim();
 
 
-    if (!command) {
+    if (!clean) {
         return;
     }
 
 
     console.log(
         "NOVA COMMAND:",
-        command
+        clean
     );
 
 
@@ -449,20 +384,26 @@ async function sendCommand(text) {
 
         const response =
             await fetch(
-                PC_URL + "/command",
+                COMMAND_URL,
                 {
+
                     method: "POST",
 
                     headers: {
+
                         "Content-Type":
                             "application/json"
+
                     },
 
                     body:
                         JSON.stringify({
+
                             command:
-                                command
+                                clean
+
                         })
+
                 }
             );
 
@@ -473,6 +414,7 @@ async function sendCommand(text) {
                 "HTTP " +
                 response.status
             );
+
         }
 
 
@@ -486,66 +428,79 @@ async function sendCommand(text) {
         );
 
 
+        /*
+         * A successful command proves
+         * the PC is reachable.
+         */
+
+        setOnline();
+
+
         if (
-            !data ||
-            !data.response
+            data &&
+            data.response
         ) {
 
-            throw new Error(
-                "NOVA returned no response."
+            setStatus(
+                data.response
             );
+
+
+            speak(
+                data.response
+            );
+
         }
 
+        else {
 
-        /*
-         * Show the response.
-         */
+            setStatus(
+                "READY"
+            );
 
-        status.textContent =
-            data.response;
-
-
-        /*
-         * Speak the response.
-         */
-
-        speak(
-            data.response
-        );
+        }
 
     }
 
     catch (error) {
 
         console.error(
-            "COMMAND ERROR:",
+            "NOVA COMMAND ERROR:",
             error
         );
 
 
+        setOffline();
+
+
         setStatus(
-            "COMMAND ERROR"
+            "CONNECTION ERROR"
         );
+
     }
+
 }
 
 
 /* =========================================================
-   SEND BUTTON
+   TEXT COMMAND BUTTON
    ========================================================= */
 
 send.addEventListener(
     "click",
     () => {
 
-        prepareSpeech();
-
         const text =
             input.value;
 
+
         input.value = "";
 
-        sendCommand(text);
+
+        command(
+            text
+        );
+
     }
 );
 
@@ -562,32 +517,39 @@ input.addEventListener(
             event.key === "Enter"
         ) {
 
-            prepareSpeech();
+            event.preventDefault();
+
 
             const text =
                 input.value;
 
+
             input.value = "";
 
-            sendCommand(text);
+
+            command(
+                text
+            );
+
         }
+
     }
 );
 
 
 /* =========================================================
-   VOICE INPUT
+   VOICE RECOGNITION
    ========================================================= */
 
-const SpeechRecognition =
+const SpeechRecognitionAPI =
     window.SpeechRecognition ||
     window.webkitSpeechRecognition;
 
 
-if (SpeechRecognition) {
+if (SpeechRecognitionAPI) {
 
     recognition =
-        new SpeechRecognition();
+        new SpeechRecognitionAPI();
 
 
     recognition.lang =
@@ -606,11 +568,11 @@ if (SpeechRecognition) {
         1;
 
 
-    orb.addEventListener(
-        "click",
+    recognition.onstart =
         () => {
 
-            prepareSpeech();
+            recognitionRunning =
+                true;
 
 
             setStatus(
@@ -618,22 +580,7 @@ if (SpeechRecognition) {
                 "listening"
             );
 
-
-            try {
-
-                recognition.start();
-
-            }
-
-            catch (error) {
-
-                console.log(
-                    "Speech recognition already active."
-                );
-            }
-
-        }
-    );
+        };
 
 
     recognition.onresult =
@@ -651,9 +598,10 @@ if (SpeechRecognition) {
             );
 
 
-            sendCommand(
+            command(
                 text
             );
+
         };
 
 
@@ -661,47 +609,85 @@ if (SpeechRecognition) {
         event => {
 
             console.error(
-                "RECOGNITION ERROR:",
+                "VOICE ERROR:",
                 event.error
             );
+
+
+            recognitionRunning =
+                false;
 
 
             setStatus(
                 "READY"
             );
+
         };
 
 
     recognition.onend =
         () => {
 
-            if (
-                status.textContent ===
-                "LISTENING"
-            ) {
+            recognitionRunning =
+                false;
+
+
+            if (!speaking) {
 
                 setStatus(
                     "READY"
                 );
+
             }
+
         };
+
+
+    orb.addEventListener(
+        "click",
+        () => {
+
+            if (
+                recognitionRunning
+            ) {
+
+                return;
+
+            }
+
+
+            try {
+
+                recognition.start();
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    error
+                );
+
+            }
+
+        }
+    );
 
 }
 
 
 /* =========================================================
-   QUICK COMMAND BUTTONS
+   BUTTON COMMANDS
    ========================================================= */
 
 wake.addEventListener(
     "click",
     () => {
 
-        prepareSpeech();
-
-        sendCommand(
+        command(
             "wake pc"
         );
+
     }
 );
 
@@ -710,11 +696,10 @@ volume.addEventListener(
     "click",
     () => {
 
-        prepareSpeech();
-
-        sendCommand(
+        command(
             "volume"
         );
+
     }
 );
 
@@ -723,11 +708,10 @@ media.addEventListener(
     "click",
     () => {
 
-        prepareSpeech();
-
-        sendCommand(
+        command(
             "media"
         );
+
     }
 );
 
@@ -736,75 +720,205 @@ apps.addEventListener(
     "click",
     () => {
 
-        prepareSpeech();
-
-        sendCommand(
+        command(
             "apps"
         );
+
     }
 );
 
 
 /* =========================================================
-   LOAD VOICES
+   PC STATS
    ========================================================= */
 
-if (speech) {
+async function updateStats() {
 
-    speech.addEventListener(
-        "voiceschanged",
-        () => {
+    try {
 
-            console.log(
-                "NOVA VOICES LOADED:",
-                speech
-                    .getVoices()
-                    .length
+        const response =
+            await fetch(
+                STATS_URL +
+                "?t=" +
+                Date.now(),
+                {
+                    method: "GET",
+                    cache: "no-store"
+                }
             );
+
+
+        if (!response.ok) {
+            return;
         }
-    );
+
+
+        const data =
+            await response.json();
+
+
+        console.log(
+            "NOVA STATS:",
+            data
+        );
+
+
+        if (
+            typeof data.cpu ===
+            "number"
+        ) {
+
+            cpu.textContent =
+                Math.round(
+                    data.cpu
+                ) + "%";
+
+        }
+
+
+        if (
+            typeof data.ram ===
+            "number"
+        ) {
+
+            ram.textContent =
+                Math.round(
+                    data.ram
+                ) + "%";
+
+        }
+
+
+        if (
+            data.gpu !== undefined &&
+            data.gpu !== null
+        ) {
+
+            gpu.textContent =
+                String(
+                    data.gpu
+                );
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "STATS ERROR:",
+            error
+        );
+
+    }
+
 }
 
 
 /* =========================================================
-   STARTUP
+   TTS VOICES
+   ========================================================= */
+
+if (
+    "speechSynthesis"
+    in window
+) {
+
+    window.speechSynthesis
+        .addEventListener(
+            "voiceschanged",
+            () => {
+
+                console.log(
+                    "NOVA TTS voices loaded:",
+                    window
+                        .speechSynthesis
+                        .getVoices()
+                        .length
+                );
+
+            }
+        );
+
+}
+
+
+/* =========================================================
+   PWA SERVICE WORKER
+   ========================================================= */
+
+if (
+    "serviceWorker"
+    in navigator
+) {
+
+    window.addEventListener(
+        "load",
+        () => {
+
+            navigator.serviceWorker
+                .register(
+                    "sw.js"
+                )
+                .catch(
+                    error => {
+
+                        console.log(
+                            "Service worker unavailable:",
+                            error
+                        );
+
+                    }
+                );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   INITIALISE
    ========================================================= */
 
 console.log(
-    "=============================="
+    "================================"
 );
 
 console.log(
-    "NOVA MOBILE ONLINE"
+    "NOVA MASTER SYSTEM INITIALISING"
 );
 
 console.log(
-    "PC URL:",
+    "PC:",
     PC_URL
 );
 
 console.log(
     "TTS:",
-    speech
+    "speechSynthesis" in window
         ? "AVAILABLE"
         : "UNAVAILABLE"
 );
 
 console.log(
     "VOICE INPUT:",
-    SpeechRecognition
+    SpeechRecognitionAPI
         ? "AVAILABLE"
         : "UNAVAILABLE"
 );
 
 console.log(
-    "=============================="
+    "================================"
 );
 
 
 setStatus(
     "READY"
 );
+
+
+setOffline();
 
 
 checkConnection();
@@ -814,7 +928,7 @@ updateStats();
 
 
 /* =========================================================
-   AUTOMATIC REFRESH
+   AUTOMATIC SYSTEM UPDATES
    ========================================================= */
 
 setInterval(
