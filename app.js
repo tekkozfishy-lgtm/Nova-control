@@ -11,7 +11,7 @@
  */
 
 const PC_URL =
-  "http://192.168.0.12:8765";
+  "https://grace-upgrades-subscription-strip.trycloudflare.com";
 
 
 /*
