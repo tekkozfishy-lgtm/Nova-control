@@ -1,3 +1,23 @@
+/*
+ * ============================================
+ *                 NOVA MOBILE
+ *             Mobile Controller
+ * ============================================
+ */
+
+
+/*
+ * PC CONNECTION
+ */
+
+const PC_URL =
+  "http://192.168.0.12:8765";
+
+
+/*
+ * ELEMENTS
+ */
+
 const orb =
   document.getElementById("orb");
 
@@ -13,11 +33,40 @@ const send =
 const wake =
   document.getElementById("wake");
 
+const volume =
+  document.getElementById("volume");
+
+const media =
+  document.getElementById("media");
+
+const apps =
+  document.getElementById("apps");
+
 const connectionText =
   document.getElementById(
     "connectionText"
   );
 
+const connectionDot =
+  document.getElementById(
+    "connectionDot"
+  );
+
+const cpu =
+  document.getElementById("cpu");
+
+const ram =
+  document.getElementById("ram");
+
+const gpu =
+  document.getElementById("gpu");
+
+
+/*
+ * ============================================
+ *                 STATUS SYSTEM
+ * ============================================
+ */
 
 function setStatus(
   text,
@@ -42,7 +91,9 @@ function setStatus(
 
 
 /*
- * NOVA SPEECH
+ * ============================================
+ *                  SPEECH
+ * ============================================
  */
 
 function speak(text) {
@@ -55,20 +106,28 @@ function speak(text) {
 
   }
 
+
   window.speechSynthesis.cancel();
+
 
   const voice =
     new SpeechSynthesisUtterance(
       text
     );
 
-  voice.lang = "en-GB";
 
-  voice.rate = 1;
+  voice.lang =
+    "en-GB";
 
-  voice.pitch = 1;
+  voice.rate =
+    1;
 
-  voice.volume = 1;
+  voice.pitch =
+    1;
+
+  voice.volume =
+    1;
+
 
   voice.onstart = () => {
 
@@ -79,6 +138,7 @@ function speak(text) {
 
   };
 
+
   voice.onend = () => {
 
     setStatus(
@@ -86,6 +146,7 @@ function speak(text) {
     );
 
   };
+
 
   window.speechSynthesis.speak(
     voice
@@ -95,16 +156,164 @@ function speak(text) {
 
 
 /*
- * TEMPORARY COMMAND SYSTEM
- *
- * The real PC connection will
- * replace this later.
+ * ============================================
+ *              PC CONNECTION CHECK
+ * ============================================
  */
 
-function command(text) {
+async function checkConnection() {
+
+  try {
+
+    const response =
+      await fetch(
+        `${PC_URL}/status`,
+        {
+          method: "GET",
+          cache: "no-store"
+        }
+      );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        "PC offline"
+      );
+
+    }
+
+
+    const data =
+      await response.json();
+
+
+    if (data.online) {
+
+      connectionText.textContent =
+        "PC ONLINE";
+
+      connectionDot.style.background =
+        "#4dff9a";
+
+      connectionDot.style.boxShadow =
+        "0 0 12px #4dff9a";
+
+      return true;
+
+    }
+
+  }
+
+  catch (error) {
+
+    console.log(
+      "NOVA PC connection:",
+      error
+    );
+
+  }
+
+
+  connectionText.textContent =
+    "PC OFFLINE";
+
+  connectionDot.style.background =
+    "#ffb84d";
+
+  connectionDot.style.boxShadow =
+    "0 0 12px #ffb84d";
+
+  return false;
+
+}
+
+
+/*
+ * ============================================
+ *                 PC STATS
+ * ============================================
+ */
+
+async function updateStats() {
+
+  try {
+
+    const response =
+      await fetch(
+        `${PC_URL}/stats`,
+        {
+          method: "GET",
+          cache: "no-store"
+        }
+      );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        "Stats unavailable"
+      );
+
+    }
+
+
+    const data =
+      await response.json();
+
+
+    cpu.textContent =
+      `${Math.round(data.cpu)}%`;
+
+
+    ram.textContent =
+      `${Math.round(data.ram)}%`;
+
+
+    /*
+     * GPU will be connected
+     * when we add GPU monitoring
+     * to the Windows side.
+     */
+
+    gpu.textContent =
+      "--";
+
+
+  }
+
+  catch (error) {
+
+    console.log(
+      "NOVA stats error:",
+      error
+    );
+
+    cpu.textContent =
+      "--";
+
+    ram.textContent =
+      "--";
+
+    gpu.textContent =
+      "--";
+
+  }
+
+}
+
+
+/*
+ * ============================================
+ *              SEND COMMAND TO PC
+ * ============================================
+ */
+
+async function command(text) {
 
   const clean =
     text.trim();
+
 
   if (!clean) {
 
@@ -113,104 +322,124 @@ function command(text) {
   }
 
 
-  const lower =
-    clean.toLowerCase();
-
-
   setStatus(
     "PROCESSING",
     "thinking"
   );
 
 
-  setTimeout(
-    () => {
+  try {
 
-      let response;
+    const response =
+      await fetch(
+        `${PC_URL}/command`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+            command: clean
+          })
+        }
+      );
 
 
-      if (
-        lower.includes(
-          "hello"
-        ) ||
-        lower.includes(
-          "hi"
-        )
-      ) {
+    if (!response.ok) {
 
-        response =
-          "Hello. NOVA is online.";
+      throw new Error(
+        "Command failed"
+      );
 
-      }
+    }
 
-      else if (
-        lower.includes(
-          "pc"
-        ) &&
-        lower.includes(
-          "awake"
-        )
-      ) {
 
-        response =
-          "The PC connection is not established yet.";
+    const data =
+      await response.json();
 
-      }
 
-      else if (
-        lower.includes(
-          "who are you"
-        )
-      ) {
-
-        response =
-          "I'm NOVA, your personal command system.";
-
-      }
-
-      else {
-
-        response =
-          "I'm ready. The Windows control system will be connected soon.";
-
-      }
-
+    if (data.success) {
 
       setStatus(
         "READY"
       );
 
+
       speak(
-        response
+        data.response
       );
 
-    },
-    500
-  );
+    }
+
+    else {
+
+      setStatus(
+        "ERROR"
+      );
+
+
+      speak(
+        "I couldn't process that command."
+      );
+
+    }
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "NOVA command error:",
+      error
+    );
+
+
+    setStatus(
+      "PC OFFLINE"
+    );
+
+
+    speak(
+      "I can't connect to the NOVA PC system."
+    );
+
+  }
 
 }
 
 
 /*
- * SEND
+ * ============================================
+ *                   SEND
+ * ============================================
  */
 
 send.addEventListener(
   "click",
   () => {
 
-    command(
-      input.value
-    );
+    const text =
+      input.value;
+
 
     input.value = "";
+
+
+    command(
+      text
+    );
 
   }
 );
 
 
 /*
- * ENTER
+ * ============================================
+ *                    ENTER
+ * ============================================
  */
 
 input.addEventListener(
@@ -221,11 +450,16 @@ input.addEventListener(
       event.key === "Enter"
     ) {
 
-      command(
-        input.value
-      );
+      const text =
+        input.value;
+
 
       input.value = "";
+
+
+      command(
+        text
+      );
 
     }
 
@@ -234,7 +468,9 @@ input.addEventListener(
 
 
 /*
- * ORB / VOICE INPUT
+ * ============================================
+ *                 VOICE INPUT
+ * ============================================
  */
 
 const Recognition =
@@ -247,11 +483,14 @@ if (Recognition) {
   const recognition =
     new Recognition();
 
+
   recognition.lang =
     "en-GB";
 
+
   recognition.continuous =
     false;
+
 
   recognition.interimResults =
     false;
@@ -266,6 +505,7 @@ if (Recognition) {
         "listening"
       );
 
+
       try {
 
         recognition.start();
@@ -274,7 +514,9 @@ if (Recognition) {
 
       catch (error) {
 
-        console.log(error);
+        console.log(
+          "Recognition already running."
+        );
 
       }
 
@@ -290,17 +532,43 @@ if (Recognition) {
           .results[0][0]
           .transcript;
 
-      command(text);
+
+      command(
+        text
+      );
 
     };
 
 
   recognition.onerror =
-    () => {
+    error => {
+
+      console.log(
+        "Voice error:",
+        error
+      );
+
 
       setStatus(
         "READY"
       );
+
+    };
+
+
+  recognition.onend =
+    () => {
+
+      if (
+        status.textContent ===
+        "LISTENING"
+      ) {
+
+        setStatus(
+          "READY"
+        );
+
+      }
 
     };
 
@@ -317,6 +585,11 @@ else {
         "VOICE UNAVAILABLE"
       );
 
+
+      speak(
+        "Voice input is not supported on this device."
+      );
+
     }
   );
 
@@ -324,37 +597,67 @@ else {
 
 
 /*
- * WAKE BUTTON
+ * ============================================
+ *                 WAKE PC
+ * ============================================
  */
 
 wake.addEventListener(
   "click",
-  () => {
+  async () => {
 
     setStatus(
-      "WAKE REQUEST",
+      "CHECKING PC",
       "thinking"
     );
 
 
-    /*
-     * Wake-on-LAN will be connected
-     * when we build the Windows side.
-     */
+    const online =
+      await checkConnection();
 
-    setTimeout(
-      () => {
 
-        setStatus(
-          "PC NOT CONNECTED"
-        );
+    if (online) {
 
-        speak(
-          "The Windows NOVA system is not connected yet."
-        );
+      setStatus(
+        "PC ONLINE"
+      );
 
-      },
-      600
+
+      speak(
+        "The NOVA PC system is already online."
+      );
+
+    }
+
+    else {
+
+      setStatus(
+        "PC OFFLINE"
+      );
+
+
+      speak(
+        "The NOVA PC system is offline."
+      );
+
+    }
+
+  }
+);
+
+
+/*
+ * ============================================
+ *                  VOLUME
+ * ============================================
+ */
+
+volume.addEventListener(
+  "click",
+  () => {
+
+    speak(
+      "Volume controls will be connected to Windows next."
     );
 
   }
@@ -362,55 +665,92 @@ wake.addEventListener(
 
 
 /*
- * PLACEHOLDER CONTROLS
+ * ============================================
+ *                   MEDIA
+ * ============================================
  */
 
-document
-  .getElementById("volume")
-  .addEventListener(
-    "click",
-    () => {
+media.addEventListener(
+  "click",
+  () => {
 
-      speak(
-        "Volume controls will be available when the PC is connected."
-      );
+    speak(
+      "Media controls will be connected to Windows next."
+    );
 
-    }
-  );
-
-
-document
-  .getElementById("media")
-  .addEventListener(
-    "click",
-    () => {
-
-      speak(
-        "Media controls will be available when the PC is connected."
-      );
-
-    }
-  );
-
-
-document
-  .getElementById("apps")
-  .addEventListener(
-    "click",
-    () => {
-
-      speak(
-        "Application controls will be available when the PC is connected."
-      );
-
-    }
-  );
+  }
+);
 
 
 /*
- * STARTUP
+ * ============================================
+ *                    APPS
+ * ============================================
+ */
+
+apps.addEventListener(
+  "click",
+  () => {
+
+    speak(
+      "Application controls will be connected to Windows next."
+    );
+
+  }
+);
+
+
+/*
+ * ============================================
+ *              AUTOMATIC UPDATES
+ * ============================================
+ */
+
+
+/*
+ * Check connection immediately
+ */
+
+checkConnection();
+
+
+/*
+ * Get PC statistics immediately
+ */
+
+updateStats();
+
+
+/*
+ * Update connection every 5 seconds
+ */
+
+setInterval(
+  checkConnection,
+  5000
+);
+
+
+/*
+ * Update system statistics every 3 seconds
+ */
+
+setInterval(
+  updateStats,
+  3000
+);
+
+
+/*
+ * ============================================
+ *                  STARTUP
+ * ============================================
  */
 
 setStatus(
   "READY"
+);
+
+console.log(
+  "NOVA Mobile initialised."
 );
