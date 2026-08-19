@@ -1,0 +1,11 @@
+{
+  "name": "NOVA Mobile",
+  "short_name": "NOVA",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#020509",
+  "theme_color": "#03070d",
+  "orientation": "portrait",
+  "description": "NOVA futuristic PC control centre",
+  "icons": []
+}
