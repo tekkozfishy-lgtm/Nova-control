@@ -1,22 +1,11 @@
-/*
- * ============================================
- *                 NOVA MOBILE
- *             Mobile Controller
- * ============================================
- */
+/* =========================================
+   NOVA MOBILE — app.js
+   ========================================= */
 
 
-/*
- * PC CONNECTION
- */
-
-const PC_URL =
-  "https://grace-upgrades-subscription-strip.trycloudflare.com";
-
-
-/*
- * ELEMENTS
- */
+/* =========================================
+   ELEMENTS
+   ========================================= */
 
 const orb =
   document.getElementById("orb");
@@ -43,14 +32,10 @@ const apps =
   document.getElementById("apps");
 
 const connectionText =
-  document.getElementById(
-    "connectionText"
-  );
+  document.getElementById("connectionText");
 
 const connectionDot =
-  document.getElementById(
-    "connectionDot"
-  );
+  document.getElementById("connectionDot");
 
 const cpu =
   document.getElementById("cpu");
@@ -58,49 +43,55 @@ const cpu =
 const ram =
   document.getElementById("ram");
 
-const gpu =
-  document.getElementById("gpu");
+const disk =
+  document.getElementById("disk");
 
+
+/* =========================================
+   NOVA PC CONNECTION
+   ========================================= */
 
 /*
- * ============================================
- *                 STATUS SYSTEM
- * ============================================
+ * IMPORTANT:
+ *
+ * This must be the current Cloudflare
+ * Quick Tunnel address.
  */
 
-function setStatus(
-  text,
-  mode = ""
-) {
+const PC_URL =
+  "https://grace-upgrades-subscription-strip.trycloudflare.com";
 
-  status.textContent =
-    text;
 
-  orb.className =
-    "orb";
+/* =========================================
+   STATUS
+   ========================================= */
+
+function setStatus(text, mode = "") {
+
+  status.textContent = text;
+
+  orb.className = "orb";
 
   if (mode) {
 
-    orb.classList.add(
-      mode
-    );
+    orb.classList.add(mode);
 
   }
 
 }
 
 
-/*
- * ============================================
- *                  SPEECH
- * ============================================
- */
+/* =========================================
+   SPEECH
+   ========================================= */
 
 function speak(text) {
 
-  if (
-    !("speechSynthesis" in window)
-  ) {
+  if (!("speechSynthesis" in window)) {
+
+    console.log(
+      "Speech synthesis is not supported."
+    );
 
     return;
 
@@ -111,22 +102,16 @@ function speak(text) {
 
 
   const voice =
-    new SpeechSynthesisUtterance(
-      text
-    );
+    new SpeechSynthesisUtterance(text);
 
 
-  voice.lang =
-    "en-GB";
+  voice.lang = "en-GB";
 
-  voice.rate =
-    1;
+  voice.rate = 1;
 
-  voice.pitch =
-    1;
+  voice.pitch = 1;
 
-  voice.volume =
-    1;
+  voice.volume = 1;
 
 
   voice.onstart = () => {
@@ -141,9 +126,14 @@ function speak(text) {
 
   voice.onend = () => {
 
-    setStatus(
-      "READY"
-    );
+    setStatus("READY");
+
+  };
+
+
+  voice.onerror = () => {
+
+    setStatus("READY");
 
   };
 
@@ -155,11 +145,9 @@ function speak(text) {
 }
 
 
-/*
- * ============================================
- *              PC CONNECTION CHECK
- * ============================================
- */
+/* =========================================
+   CONNECTION CHECK
+   ========================================= */
 
 async function checkConnection() {
 
@@ -167,7 +155,7 @@ async function checkConnection() {
 
     const response =
       await fetch(
-        `${PC_URL}/status`,
+        PC_URL + "/status",
         {
           method: "GET",
           cache: "no-store"
@@ -178,7 +166,7 @@ async function checkConnection() {
     if (!response.ok) {
 
       throw new Error(
-        "PC offline"
+        "PC status request failed"
       );
 
     }
@@ -193,13 +181,21 @@ async function checkConnection() {
       connectionText.textContent =
         "PC ONLINE";
 
+
       connectionDot.style.background =
         "#4dff9a";
+
 
       connectionDot.style.boxShadow =
         "0 0 12px #4dff9a";
 
-      return true;
+    }
+
+    else {
+
+      throw new Error(
+        "PC reported offline"
+      );
 
     }
 
@@ -208,32 +204,30 @@ async function checkConnection() {
   catch (error) {
 
     console.log(
-      "NOVA PC connection:",
+      "NOVA connection error:",
       error
     );
 
+
+    connectionText.textContent =
+      "PC OFFLINE";
+
+
+    connectionDot.style.background =
+      "#ff4d4d";
+
+
+    connectionDot.style.boxShadow =
+      "0 0 12px #ff4d4d";
+
   }
-
-
-  connectionText.textContent =
-    "PC OFFLINE";
-
-  connectionDot.style.background =
-    "#ffb84d";
-
-  connectionDot.style.boxShadow =
-    "0 0 12px #ffb84d";
-
-  return false;
 
 }
 
 
-/*
- * ============================================
- *                 PC STATS
- * ============================================
- */
+/* =========================================
+   LIVE PC STATS
+   ========================================= */
 
 async function updateStats() {
 
@@ -241,7 +235,7 @@ async function updateStats() {
 
     const response =
       await fetch(
-        `${PC_URL}/stats`,
+        PC_URL + "/stats",
         {
           method: "GET",
           cache: "no-store"
@@ -252,7 +246,7 @@ async function updateStats() {
     if (!response.ok) {
 
       throw new Error(
-        "Stats unavailable"
+        "Stats request failed"
       );
 
     }
@@ -262,23 +256,40 @@ async function updateStats() {
       await response.json();
 
 
-    cpu.textContent =
-      `${Math.round(data.cpu)}%`;
+    /* CPU */
+
+    if (
+      typeof data.cpu === "number"
+    ) {
+
+      cpu.textContent =
+        Math.round(data.cpu) + "%";
+
+    }
 
 
-    ram.textContent =
-      `${Math.round(data.ram)}%`;
+    /* RAM */
+
+    if (
+      typeof data.ram === "number"
+    ) {
+
+      ram.textContent =
+        Math.round(data.ram) + "%";
+
+    }
 
 
-    /*
-     * GPU will be connected
-     * when we add GPU monitoring
-     * to the Windows side.
-     */
+    /* DISK */
 
-    gpu.textContent =
-      "--";
+    if (
+      typeof data.disk === "number"
+    ) {
 
+      disk.textContent =
+        Math.round(data.disk) + "%";
+
+    }
 
   }
 
@@ -289,25 +300,21 @@ async function updateStats() {
       error
     );
 
-    cpu.textContent =
-      "--";
 
-    ram.textContent =
-      "--";
+    cpu.textContent = "--";
 
-    gpu.textContent =
-      "--";
+    ram.textContent = "--";
+
+    disk.textContent = "--";
 
   }
 
 }
 
 
-/*
- * ============================================
- *              SEND COMMAND TO PC
- * ============================================
- */
+/* =========================================
+   SEND COMMAND TO PC
+   ========================================= */
 
 async function command(text) {
 
@@ -332,8 +339,9 @@ async function command(text) {
 
     const response =
       await fetch(
-        `${PC_URL}/command`,
+        PC_URL + "/command",
         {
+
           method: "POST",
 
           headers: {
@@ -342,8 +350,11 @@ async function command(text) {
           },
 
           body: JSON.stringify({
+
             command: clean
+
           })
+
         }
       );
 
@@ -351,7 +362,7 @@ async function command(text) {
     if (!response.ok) {
 
       throw new Error(
-        "Command failed"
+        "Command request failed"
       );
 
     }
@@ -361,12 +372,9 @@ async function command(text) {
       await response.json();
 
 
-    if (data.success) {
-
-      setStatus(
-        "READY"
-      );
-
+    if (
+      data.response
+    ) {
 
       speak(
         data.response
@@ -376,14 +384,7 @@ async function command(text) {
 
     else {
 
-      setStatus(
-        "ERROR"
-      );
-
-
-      speak(
-        "I couldn't process that command."
-      );
+      setStatus("READY");
 
     }
 
@@ -391,19 +392,19 @@ async function command(text) {
 
   catch (error) {
 
-    console.error(
+    console.log(
       "NOVA command error:",
       error
     );
 
 
     setStatus(
-      "PC OFFLINE"
+      "CONNECTION ERROR"
     );
 
 
     speak(
-      "I can't connect to the NOVA PC system."
+      "I can't reach the NOVA PC system."
     );
 
   }
@@ -411,11 +412,9 @@ async function command(text) {
 }
 
 
-/*
- * ============================================
- *                   SEND
- * ============================================
- */
+/* =========================================
+   SEND BUTTON
+   ========================================= */
 
 send.addEventListener(
   "click",
@@ -428,19 +427,15 @@ send.addEventListener(
     input.value = "";
 
 
-    command(
-      text
-    );
+    command(text);
 
   }
 );
 
 
-/*
- * ============================================
- *                    ENTER
- * ============================================
- */
+/* =========================================
+   ENTER KEY
+   ========================================= */
 
 input.addEventListener(
   "keydown",
@@ -457,9 +452,7 @@ input.addEventListener(
       input.value = "";
 
 
-      command(
-        text
-      );
+      command(text);
 
     }
 
@@ -467,20 +460,21 @@ input.addEventListener(
 );
 
 
-/*
- * ============================================
- *                 VOICE INPUT
- * ============================================
- */
+/* =========================================
+   VOICE RECOGNITION
+   ========================================= */
 
 const Recognition =
   window.SpeechRecognition ||
   window.webkitSpeechRecognition;
 
 
+let recognition = null;
+
+
 if (Recognition) {
 
-  const recognition =
+  recognition =
     new Recognition();
 
 
@@ -495,6 +489,14 @@ if (Recognition) {
   recognition.interimResults =
     false;
 
+
+  recognition.maxAlternatives =
+    1;
+
+
+  /* -------------------------------
+     START LISTENING
+     ------------------------------- */
 
   orb.addEventListener(
     "click",
@@ -515,7 +517,8 @@ if (Recognition) {
       catch (error) {
 
         console.log(
-          "Recognition already running."
+          "Recognition start error:",
+          error
         );
 
       }
@@ -523,6 +526,10 @@ if (Recognition) {
     }
   );
 
+
+  /* -------------------------------
+     SPEECH RESULT
+     ------------------------------- */
 
   recognition.onresult =
     event => {
@@ -533,19 +540,27 @@ if (Recognition) {
           .transcript;
 
 
-      command(
+      console.log(
+        "NOVA heard:",
         text
       );
+
+
+      command(text);
 
     };
 
 
+  /* -------------------------------
+     SPEECH ERROR
+     ------------------------------- */
+
   recognition.onerror =
-    error => {
+    event => {
 
       console.log(
-        "Voice error:",
-        error
+        "Speech recognition error:",
+        event.error
       );
 
 
@@ -555,6 +570,10 @@ if (Recognition) {
 
     };
 
+
+  /* -------------------------------
+     SPEECH END
+     ------------------------------- */
 
   recognition.onend =
     () => {
@@ -575,7 +594,16 @@ if (Recognition) {
 }
 
 
+/* =========================================
+   VOICE NOT AVAILABLE
+   ========================================= */
+
 else {
+
+  console.log(
+    "Speech recognition is not supported."
+  );
+
 
   orb.addEventListener(
     "click",
@@ -585,144 +613,102 @@ else {
         "VOICE UNAVAILABLE"
       );
 
-
-      speak(
-        "Voice input is not supported on this device."
-      );
-
     }
   );
 
 }
 
 
-/*
- * ============================================
- *                 WAKE PC
- * ============================================
- */
+/* =========================================
+   WAKE PC BUTTON
+   ========================================= */
 
 wake.addEventListener(
   "click",
-  async () => {
+  () => {
 
-    setStatus(
-      "CHECKING PC",
-      "thinking"
+    command(
+      "wake pc"
     );
-
-
-    const online =
-      await checkConnection();
-
-
-    if (online) {
-
-      setStatus(
-        "PC ONLINE"
-      );
-
-
-      speak(
-        "The NOVA PC system is already online."
-      );
-
-    }
-
-    else {
-
-      setStatus(
-        "PC OFFLINE"
-      );
-
-
-      speak(
-        "The NOVA PC system is offline."
-      );
-
-    }
 
   }
 );
 
 
-/*
- * ============================================
- *                  VOLUME
- * ============================================
- */
+/* =========================================
+   VOLUME BUTTON
+   ========================================= */
 
 volume.addEventListener(
   "click",
   () => {
 
-    speak(
-      "Volume controls will be connected to Windows next."
+    command(
+      "volume"
     );
 
   }
 );
 
 
-/*
- * ============================================
- *                   MEDIA
- * ============================================
- */
+/* =========================================
+   MEDIA BUTTON
+   ========================================= */
 
 media.addEventListener(
   "click",
   () => {
 
-    speak(
-      "Media controls will be connected to Windows next."
+    command(
+      "media"
     );
 
   }
 );
 
 
-/*
- * ============================================
- *                    APPS
- * ============================================
- */
+/* =========================================
+   APPS BUTTON
+   ========================================= */
 
 apps.addEventListener(
   "click",
   () => {
 
-    speak(
-      "Application controls will be connected to Windows next."
+    command(
+      "apps"
     );
 
   }
 );
 
 
-/*
- * ============================================
- *              AUTOMATIC UPDATES
- * ============================================
- */
+/* =========================================
+   STARTUP
+   ========================================= */
+
+setStatus(
+  "READY"
+);
 
 
-/*
- * Check connection immediately
- */
+/* Check PC immediately */
 
 checkConnection();
 
 
-/*
- * Get PC statistics immediately
- */
+/* Get stats immediately */
 
 updateStats();
 
 
+/* =========================================
+   AUTOMATIC UPDATES
+   ========================================= */
+
 /*
- * Update connection every 5 seconds
+ * Connection:
+ * every 5 seconds
  */
 
 setInterval(
@@ -732,25 +718,11 @@ setInterval(
 
 
 /*
- * Update system statistics every 3 seconds
+ * PC stats:
+ * every 2 seconds
  */
 
 setInterval(
   updateStats,
-  3000
-);
-
-
-/*
- * ============================================
- *                  STARTUP
- * ============================================
- */
-
-setStatus(
-  "READY"
-);
-
-console.log(
-  "NOVA Mobile initialised."
+  2000
 );
