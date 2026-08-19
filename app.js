@@ -1,5 +1,6 @@
 /* =========================================
-   NOVA MOBILE — app.js
+   NOVA MOBILE
+   app.js
    ========================================= */
 
 
@@ -7,29 +8,15 @@
    ELEMENTS
    ========================================= */
 
-const orb =
-  document.getElementById("orb");
+const orb = document.getElementById("orb");
+const status = document.getElementById("status");
+const input = document.getElementById("input");
+const send = document.getElementById("send");
 
-const status =
-  document.getElementById("status");
-
-const input =
-  document.getElementById("input");
-
-const send =
-  document.getElementById("send");
-
-const wake =
-  document.getElementById("wake");
-
-const volume =
-  document.getElementById("volume");
-
-const media =
-  document.getElementById("media");
-
-const apps =
-  document.getElementById("apps");
+const wake = document.getElementById("wake");
+const volume = document.getElementById("volume");
+const media = document.getElementById("media");
+const apps = document.getElementById("apps");
 
 const connectionText =
   document.getElementById("connectionText");
@@ -48,15 +35,8 @@ const disk =
 
 
 /* =========================================
-   NOVA PC CONNECTION
+   NOVA PC ADDRESS
    ========================================= */
-
-/*
- * IMPORTANT:
- *
- * This must be the current Cloudflare
- * Quick Tunnel address.
- */
 
 const PC_URL =
   "https://grace-upgrades-subscription-strip.trycloudflare.com";
@@ -73,19 +53,26 @@ function setStatus(text, mode = "") {
   orb.className = "orb";
 
   if (mode) {
-
     orb.classList.add(mode);
-
   }
 
 }
 
 
 /* =========================================
-   SPEECH
+   SPEAK
    ========================================= */
 
 function speak(text) {
+
+  console.log("NOVA SPEAK:", text);
+
+  if (!text) {
+    console.log("No speech text received.");
+    setStatus("READY");
+    return;
+  }
+
 
   if (!("speechSynthesis" in window)) {
 
@@ -93,28 +80,28 @@ function speak(text) {
       "Speech synthesis is not supported."
     );
 
-    return;
+    setStatus("VOICE UNAVAILABLE");
 
+    return;
   }
 
 
   window.speechSynthesis.cancel();
 
 
-  const voice =
+  const utterance =
     new SpeechSynthesisUtterance(text);
 
 
-  voice.lang = "en-GB";
-
-  voice.rate = 1;
-
-  voice.pitch = 1;
-
-  voice.volume = 1;
+  utterance.lang = "en-GB";
+  utterance.rate = 1;
+  utterance.pitch = 1;
+  utterance.volume = 1;
 
 
-  voice.onstart = () => {
+  utterance.onstart = () => {
+
+    console.log("NOVA STARTED SPEAKING");
 
     setStatus(
       "SPEAKING",
@@ -124,14 +111,21 @@ function speak(text) {
   };
 
 
-  voice.onend = () => {
+  utterance.onend = () => {
+
+    console.log("NOVA FINISHED SPEAKING");
 
     setStatus("READY");
 
   };
 
 
-  voice.onerror = () => {
+  utterance.onerror = event => {
+
+    console.log(
+      "Speech error:",
+      event
+    );
 
     setStatus("READY");
 
@@ -139,14 +133,14 @@ function speak(text) {
 
 
   window.speechSynthesis.speak(
-    voice
+    utterance
   );
 
 }
 
 
 /* =========================================
-   CONNECTION CHECK
+   CHECK PC CONNECTION
    ========================================= */
 
 async function checkConnection() {
@@ -157,18 +151,15 @@ async function checkConnection() {
       await fetch(
         PC_URL + "/status",
         {
-          method: "GET",
           cache: "no-store"
         }
       );
 
 
     if (!response.ok) {
-
       throw new Error(
-        "PC status request failed"
+        "Status request failed"
       );
-
     }
 
 
@@ -191,20 +182,13 @@ async function checkConnection() {
 
     }
 
-    else {
-
-      throw new Error(
-        "PC reported offline"
-      );
-
-    }
 
   }
 
   catch (error) {
 
     console.log(
-      "NOVA connection error:",
+      "Connection error:",
       error
     );
 
@@ -226,7 +210,7 @@ async function checkConnection() {
 
 
 /* =========================================
-   LIVE PC STATS
+   PC STATS
    ========================================= */
 
 async function updateStats() {
@@ -237,26 +221,21 @@ async function updateStats() {
       await fetch(
         PC_URL + "/stats",
         {
-          method: "GET",
           cache: "no-store"
         }
       );
 
 
     if (!response.ok) {
-
       throw new Error(
         "Stats request failed"
       );
-
     }
 
 
     const data =
       await response.json();
 
-
-    /* CPU */
 
     if (
       typeof data.cpu === "number"
@@ -268,8 +247,6 @@ async function updateStats() {
     }
 
 
-    /* RAM */
-
     if (
       typeof data.ram === "number"
     ) {
@@ -279,8 +256,6 @@ async function updateStats() {
 
     }
 
-
-    /* DISK */
 
     if (
       typeof data.disk === "number"
@@ -296,16 +271,9 @@ async function updateStats() {
   catch (error) {
 
     console.log(
-      "NOVA stats error:",
+      "Stats error:",
       error
     );
-
-
-    cpu.textContent = "--";
-
-    ram.textContent = "--";
-
-    disk.textContent = "--";
 
   }
 
@@ -313,7 +281,7 @@ async function updateStats() {
 
 
 /* =========================================
-   SEND COMMAND TO PC
+   SEND COMMAND
    ========================================= */
 
 async function command(text) {
@@ -323,10 +291,14 @@ async function command(text) {
 
 
   if (!clean) {
-
     return;
-
   }
+
+
+  console.log(
+    "NOVA COMMAND:",
+    clean
+  );
 
 
   setStatus(
@@ -350,19 +322,24 @@ async function command(text) {
           },
 
           body: JSON.stringify({
-
             command: clean
-
           })
 
         }
       );
 
 
+    console.log(
+      "SERVER STATUS:",
+      response.status
+    );
+
+
     if (!response.ok) {
 
       throw new Error(
-        "Command request failed"
+        "Server returned " +
+        response.status
       );
 
     }
@@ -372,17 +349,39 @@ async function command(text) {
       await response.json();
 
 
+    console.log(
+      "SERVER RESPONSE:",
+      data
+    );
+
+
+    /*
+     * Python returns:
+     *
+     * {
+     *   success: true,
+     *   command: "hello",
+     *   response: "Hello. NOVA PC is online and connected."
+     * }
+     */
+
+
     if (
+      data &&
       data.response
     ) {
 
       speak(
-        data.response
+        String(data.response)
       );
 
     }
 
     else {
+
+      console.log(
+        "Server did not provide response text."
+      );
 
       setStatus("READY");
 
@@ -392,19 +391,14 @@ async function command(text) {
 
   catch (error) {
 
-    console.log(
-      "NOVA command error:",
+    console.error(
+      "COMMAND ERROR:",
       error
     );
 
 
     setStatus(
       "CONNECTION ERROR"
-    );
-
-
-    speak(
-      "I can't reach the NOVA PC system."
     );
 
   }
@@ -423,9 +417,7 @@ send.addEventListener(
     const text =
       input.value;
 
-
     input.value = "";
-
 
     command(text);
 
@@ -448,9 +440,7 @@ input.addEventListener(
       const text =
         input.value;
 
-
       input.value = "";
-
 
       command(text);
 
@@ -494,10 +484,6 @@ if (Recognition) {
     1;
 
 
-  /* -------------------------------
-     START LISTENING
-     ------------------------------- */
-
   orb.addEventListener(
     "click",
     () => {
@@ -517,7 +503,7 @@ if (Recognition) {
       catch (error) {
 
         console.log(
-          "Recognition start error:",
+          "Recognition error:",
           error
         );
 
@@ -526,10 +512,6 @@ if (Recognition) {
     }
   );
 
-
-  /* -------------------------------
-     SPEECH RESULT
-     ------------------------------- */
 
   recognition.onresult =
     event => {
@@ -541,7 +523,7 @@ if (Recognition) {
 
 
       console.log(
-        "NOVA heard:",
+        "NOVA HEARD:",
         text
       );
 
@@ -551,29 +533,19 @@ if (Recognition) {
     };
 
 
-  /* -------------------------------
-     SPEECH ERROR
-     ------------------------------- */
-
   recognition.onerror =
     event => {
 
       console.log(
-        "Speech recognition error:",
+        "VOICE ERROR:",
         event.error
       );
 
 
-      setStatus(
-        "READY"
-      );
+      setStatus("READY");
 
     };
 
-
-  /* -------------------------------
-     SPEECH END
-     ------------------------------- */
 
   recognition.onend =
     () => {
@@ -583,9 +555,7 @@ if (Recognition) {
         "LISTENING"
       ) {
 
-        setStatus(
-          "READY"
-        );
+        setStatus("READY");
 
       }
 
@@ -595,89 +565,44 @@ if (Recognition) {
 
 
 /* =========================================
-   VOICE NOT AVAILABLE
-   ========================================= */
-
-else {
-
-  console.log(
-    "Speech recognition is not supported."
-  );
-
-
-  orb.addEventListener(
-    "click",
-    () => {
-
-      setStatus(
-        "VOICE UNAVAILABLE"
-      );
-
-    }
-  );
-
-}
-
-
-/* =========================================
-   WAKE PC BUTTON
+   BUTTONS
    ========================================= */
 
 wake.addEventListener(
   "click",
   () => {
 
-    command(
-      "wake pc"
-    );
+    command("wake pc");
 
   }
 );
 
-
-/* =========================================
-   VOLUME BUTTON
-   ========================================= */
 
 volume.addEventListener(
   "click",
   () => {
 
-    command(
-      "volume"
-    );
+    command("volume");
 
   }
 );
 
-
-/* =========================================
-   MEDIA BUTTON
-   ========================================= */
 
 media.addEventListener(
   "click",
   () => {
 
-    command(
-      "media"
-    );
+    command("media");
 
   }
 );
 
 
-/* =========================================
-   APPS BUTTON
-   ========================================= */
-
 apps.addEventListener(
   "click",
   () => {
 
-    command(
-      "apps"
-    );
+    command("apps");
 
   }
 );
@@ -687,17 +612,9 @@ apps.addEventListener(
    STARTUP
    ========================================= */
 
-setStatus(
-  "READY"
-);
-
-
-/* Check PC immediately */
+setStatus("READY");
 
 checkConnection();
-
-
-/* Get stats immediately */
 
 updateStats();
 
@@ -706,21 +623,11 @@ updateStats();
    AUTOMATIC UPDATES
    ========================================= */
 
-/*
- * Connection:
- * every 5 seconds
- */
-
 setInterval(
   checkConnection,
   5000
 );
 
-
-/*
- * PC stats:
- * every 2 seconds
- */
 
 setInterval(
   updateStats,
